@@ -409,6 +409,30 @@ if ($CopyOnly) {
             $dirLinks = Get-ChildItem -Dir -Path $LinkShare -Recurse -Attributes ReparsePoint | Where-Object {($_.Target -replace "UNC", "\") -match [RegEx]::Escape($snapshotPath)}
             # Copy over links
             Copy-SnapshotData -snapshotPath $snapshotPath -LinkShare $LinkShare -fileLinks $fileLinks -dirLinks $dirLinks
+ 
+ 
+             # Write copy summary to console
+            Write-Host "Summary"
+            Write-Host "Linked files copied: $($copyHash["file"].Count)"
+            Write-Host "Linked directories copied: $($copyHash["dir"].Count)"
+            Write-Host "Links ignored: $($linkHash["ignored"].Count)"
+            Write-Host "Links failed: $($linkHash["failed"].Count)"
+
+            # Summary report
+            foreach ($item in $copyHash["file"]) {
+                "Copy`tFile`tSuccess`t$($item.FullName)" | Out-File -FilePath $SummaryFile -Append
+            }
+            foreach ($item in $copyHash["dir"]) {
+                "Copy`tDir`tSuccess`t$($item.FullName)" | Out-File -FilePath $SummaryFile -Append
+            }
+            # Ignored and failed values include type and result fields
+            foreach ($item in $copyHash["ignored"]) {
+                "Create link`t$item" | Out-File -FilePath $SummaryFile -Append
+            }
+            foreach ($item in $copyHash["failed"]) {
+                "Create link`t$item" | Out-File -FilePath $SummaryFile -Append
+            }
+
         } else {
             Write-LogFile -LogFile $LogFile -Message "Please confirm the desired snapshot and rerun the script."
         }
@@ -485,6 +509,28 @@ if ($CopyOnly) {
         #$fileLinks = Get-ChildItem -File -Path $LinkShare -Recurse -Attributes ReparsePoint | Where-Object {$_.Target -match ".snapshot"}
         #$dirLinks = Get-ChildItem -Dir -Path $LinkShare -Recurse -Attributes ReparsePoint | Where-Object {$_.Target -match ".snapshot"}
         Copy-SnapshotData -snapshotPath $snapshotPath -LinkShare $LinkShare -fileLinks $linkHash["file"] -dirLinks $linkHash["dir"]
+
+        # Write copy summary to console
+        Write-Host "Summary"
+        Write-Host "Linked files copied: $($copyHash["file"].Count)"
+        Write-Host "Linked directories copied: $($copyHash["dir"].Count)"
+        Write-Host "Links ignored: $($linkHash["ignored"].Count)"
+        Write-Host "Links failed: $($linkHash["failed"].Count)"
+
+        # Summary report
+        foreach ($item in $copyHash["file"]) {
+            "Copy`tFile`tSuccess`t$($item.FullName)" | Out-File -FilePath $SummaryFile -Append
+        }
+        foreach ($item in $copyHash["dir"]) {
+            "Copy`tDir`tSuccess`t$($item.FullName)" | Out-File -FilePath $SummaryFile -Append
+        }
+        # Ignored and failed values include type and result fields
+        foreach ($item in $copyHash["ignored"]) {
+            "Create link`t$item" | Out-File -FilePath $SummaryFile -Append
+        }
+        foreach ($item in $copyHash["failed"]) {
+            "Create link`t$item" | Out-File -FilePath $SummaryFile -Append
+        }
 
     } else {
         Write-Host "You can run the copy later by using the -CopyOnly option"
