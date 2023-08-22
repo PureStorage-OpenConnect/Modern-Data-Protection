@@ -277,7 +277,7 @@ function Make-SnapshotLinks {
     # Output hashtable
     Write-Output $linkLists
 
-    $duration = (Get-Date - $start).TotalSeconds
+    $duration = ((Get-Date) - $start).TotalSeconds
     Write-LogFile -LogFile $LogFile -Level "DEBUG" -Message "Links completed in $duration seconds"
 }
 
